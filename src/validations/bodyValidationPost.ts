@@ -2,14 +2,13 @@ import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
 
 const schema = Joi.object({
-    // Couldn't implement that on time.
-    //image: Joi.string().base64().required(),
+    base64_image: Joi.string().base64({ paddingRequired: false }).required(),
     customer_code: Joi.string().required(),
     measure_datetime: Joi.date().iso().required(),
     measure_type: Joi.string().valid('WATER', 'GAS').required(),
 });
 
-const validateRequest = (req: Request, res: Response, next: NextFunction) => {
+const validatePost = (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
 
     if (error) {
@@ -19,4 +18,4 @@ const validateRequest = (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-export default validateRequest;
+export default validatePost;

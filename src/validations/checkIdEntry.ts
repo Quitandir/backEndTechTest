@@ -13,33 +13,31 @@ const client = new MongoClient(uri, {
     }
 });
 
-// Middleware to check existing entry
-const checkExistingEntry = async (req: Request, res: Response, next: NextFunction) => {
-    const { customer_code, measure_datetime } = req.body;
-
-    // Parse the date
-    const date = new Date(measure_datetime);
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    const year_month = `${year}-${month + 1}`
+// Middleware to check existing entry for measure_id and if monthly reading was already done
+const checkIdEntry = async (req: Request, res: Response, next: NextFunction) => {
+    const { measure_id } = req.params;
 
     try {
         await client.connect();
-
         const db = client.db('teste');
         const collection = db.collection('leituras');
 
         // Check for an existing entry
         const existingEntry = await collection.findOne({
-            customer_code,
-            year_month
+            measure_id
         });
 
-        if (existingEntry) {
-            return res.status(409).json({
-                message: 'An entry for this customer already exists for this month.',
+        if (!existingEntry) {
+            return res.status(404).json({
+                error_code: "MEASURE_NOT_FOUND",
+                error_description: "Leitura do mês não encontrada"
             });
-        }        
+        } else if (existingEntry.confirmed == true) {
+            return res.status(409).json({
+                error_code: "CONFIRMATION_DUPLICATE",
+                error_descrption: "Leitura do mês já realizada"
+            })
+        }
 
         next();
     } catch (err) {
@@ -48,5 +46,5 @@ const checkExistingEntry = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-export default checkExistingEntry;
+export default checkIdEntry;
 
