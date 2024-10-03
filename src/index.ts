@@ -14,7 +14,7 @@ import checkIdEntry from "./validations/checkIdEntry.js";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import monthYearParser from "./utils/monthYearParser.js";
 import checkCustomerEntry from "./validations/checkCustomerEntry.js";
-import { jsonc } from "jsonc";
+
 
 dotenv.config();
 // Express and Bodyparser setup
@@ -51,7 +51,7 @@ app.post('/reading', validatePost, checkMonthlyEntry, async (req: Request, res: 
         // Convert base64 to buffer
         const buffer = Buffer.from(base64_image, "base64");
 
-        // Write the buffer to a temporary file
+        // Create temp path
         const tempPath = path.join(os.tmpdir(), "image");
 
         // Write image from the buffer
@@ -100,13 +100,7 @@ app.post('/reading', validatePost, checkMonthlyEntry, async (req: Request, res: 
                 measure_value: measure_value
             })
         });
-        /*
-        // Deletion of temp file after it's used
-        fs.unlink(tempPath, (unlinkErr) => {
-            if (unlinkErr) console.error('Failed to delete temporary file:', unlinkErr);
-        });
-        */
-
+ 
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error while processing the image.' });
